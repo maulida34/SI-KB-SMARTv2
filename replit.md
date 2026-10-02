@@ -1,45 +1,41 @@
-# [Project name]
+# SI-KB SMART
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Sistem Informasi Analitik Kampung KB untuk DPPKB. Aplikasi analitik publik dan impor data privat petugas DALDUK.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `cd sikb-smart && php artisan serve --host=0.0.0.0 --port=5000` — jalankan aplikasi
+- `cd sikb-smart && php artisan migrate --seed` — siapkan skema dan 200 kegiatan contoh
+- `cd sikb-smart && npm run build` — kompilasi aset Laravel Vite
+- Workflow utama: **SI-KB SMART (Laravel)**
+- Database Replit menggunakan `DATABASE_URL`; rahasia `SESSION_SECRET` digunakan sebagai sumber kunci aplikasi jika `APP_KEY` tidak diatur.
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- PHP 8.4 dan Laravel 13
+- Blade, Laravel Breeze, Eloquent ORM
+- PostgreSQL Replit
+- Tailwind CSS dengan Laravel Vite plugin
+- Chart.js dan maatwebsite/excel
 
-## Where things live
+## Ruang lingkup produk
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- Beranda publik hanya menampilkan data agregat; jangan tampilkan nama pengirim atau data pribadi.
+- Kegiatan hanya masuk melalui unggahan Excel/CSV petugas DALDUK; jangan menambahkan form CRUD kegiatan per baris.
+- Riwayat unggahan menyediakan penghapusan satu batch beserta seluruh kegiatannya.
+- Antarmuka menggunakan Bahasa Indonesia dan mendukung tema terang/gelap.
 
-## Architecture decisions
+## Peta kode
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- `sikb-smart/app/Http/Controllers/HomeController.php` — agregat beranda dan detail kelurahan.
+- `sikb-smart/app/Http/Controllers/UploadController.php` — validasi, pratinjau, simpan, hapus batch, dan unduh template.
+- `sikb-smart/app/Support/KegiatanOptions.php` — konstanta seksi resmi dan nama kelurahan.
+- `sikb-smart/database/migrations/` dan `sikb-smart/database/seeders/` — skema serta data contoh.
+- `sikb-smart/resources/views/` — antarmuka Blade.
+- `README.md` — instruksi lokal, akun awal, dan format unggahan.
 
-## Product
+## Keputusan implementasi
 
-_Describe the high-level user-facing capabilities of this app once they exist._
-
-## User preferences
-
-_Populate as you build — explicit user instructions worth remembering across sessions._
-
-## Gotchas
-
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- Aplikasi produk berada di direktori `sikb-smart`; server Laravel menjadi workflow utama. Paket Node di direktori Laravel hanya menjalankan Vite resmi untuk mengompilasi aset Blade.
+- Dashboard publik mengambil hanya kolom analitik yang diperlukan dan menghitung ringkasan melalui model Eloquent.
+- Unggahan divalidasi ulang saat pratinjau dan saat penyimpanan agar duplikat maupun data tidak valid tidak lolos setelah pratinjau.

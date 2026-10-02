@@ -1,0 +1,69 @@
+PENTING — BACA SEBELUM MULAI:
+Project ini WAJIB dibuat dengan PHP Laravel. JANGAN gunakan Node.js, React, Vite, TypeScript, Express, pnpm, atau stack JavaScript apa pun. Ini instruksi mutlak, bukan preferensi.
+
+Sebelum menulis kode apa pun, balas dulu di chat dengan konfirmasi tertulis: "Saya akan membuat project ini menggunakan PHP Laravel, bukan Node.js/React." Tunggu saya setujui balasan itu sebelum mulai generate file.
+
+Kalau karena alasan apa pun Replit Agent tidak bisa/tidak akan menggunakan PHP Laravel di environment ini, KATAKAN ITU SECARA LANGSUNG dan jujur di chat, jangan diam-diam mengganti ke stack lain.
+
+===
+
+Buatkan aplikasi web bernama "SI-KB SMART" untuk DPPKB. Ini Sistem Informasi Analitik Kampung KB — HANYA analitik, TIDAK ADA form CRUD manual (tidak ada tambah/edit/hapus data per baris lewat form web). Satu-satunya cara data masuk adalah lewat upload file Excel oleh petugas DALDUK. Bahasa antarmuka: Bahasa Indonesia. Tampilan responsif, mendukung mode terang/gelap.
+
+TECH STACK (WAJIB, tidak bisa diganti)
+- Backend: PHP Laravel versi terbaru
+- Database: MySQL (pakai database bawaan Replit untuk MySQL/PostgreSQL yang kompatibel Laravel — JANGAN pakai Drizzle ORM atau database driver Node.js)
+- Template: Blade (resources/views/*.blade.php)
+- Styling: Tailwind CSS versi Laravel (lewat Vite plugin Laravel resmi, BUKAN project Vite terpisah)
+- Grafik: Chart.js, dipanggil dari dalam file Blade
+- Import Excel: library maatwebsite/excel (PHP, dipasang lewat Composer)
+- Autentikasi: Laravel Breeze
+
+STRUKTUR DATA
+Migration dan model Kegiatan dengan kolom:
+- timestamp, nama_pengirim, jabatan_pengirim, nama_penyuluh_pembina
+- kelurahan (Nama Kelurahan Kampung Keluarga Berkualitas)
+- judul_kegiatan, tanggal_kegiatan, lokasi_kegiatan, deskripsi
+- seksi_kegiatan, program_kegiatan
+- kategori_peserta (kategori teks seperti Balita, Remaja, Lansia, PUS — BUKAN angka jumlah peserta)
+- opd_mitra (teks, beberapa instansi dipisah koma)
+- dokumentasi_1, dokumentasi_2 (link, boleh kosong)
+- upload_batch_id (relasi ke tabel upload_batches)
+
+Tabel upload_batches: id, nama_file, diupload_oleh (relasi users), diupload_pada, jumlah_baris.
+
+5 SEKSI KEGIATAN RESMI (pakai persis ini, simpan sebagai konstanta PHP):
+1. Penyediaan Data Keluarga dan Pelayanan Dokumen Kependudukan
+2. Perubahan Perilaku Keluarga
+3. Peningkatan Cakupan Layanan dan Rujukan pada Keluarga
+4. Penataan Lingkungan Keluarga dan Masyarakat
+5. Kesekretariatan
+
+Isi database dengan sekitar 200 baris data dummy lewat Laravel Seeder (database/seeders/), untuk 6 kelurahan (Sungai Miai, Kuin Utara, Alalak Selatan, Pekapuran Raya, Basirih, Teluk Dalam), tersebar 12 bulan terakhir.
+
+HALAMAN 1: BERANDA (PUBLIK, tanpa login) — route "/"
+Hanya tampilkan data agregat, jangan pernah tampilkan nama pengirim atau data pribadi.
+- Header, menu Beranda dan Login Petugas
+- Filter periode 6/12 bulan, tombol Reset filter
+- Kartu ringkasan: total kegiatan, jumlah kelurahan aktif
+- Grafik garis: kegiatan per bulan
+- Grafik batang horizontal: kegiatan per seksi (5 seksi resmi), klik untuk filter seluruh halaman
+- Grafik batang: kegiatan per kategori peserta
+- Kartu per kelurahan dengan badge status (Tinggi >=20, Sedang >=12, Rendah selain itu; kalau difilter satu seksi: Tinggi >=5, Sedang >=3), bisa diurutkan, klik untuk detail (jumlah kegiatan, instansi mitra terlibat — dipecah dari opd_mitra berdasarkan koma dan dihitung unik, seksi dominan, rincian per seksi)
+
+HALAMAN 2: LOGIN PETUGAS DALDUK — route "/login"
+Laravel Breeze standar. Akun awal: email dalduk@sikbsmart.test, password sementara (tulis di README).
+
+HALAMAN 3: UPLOAD DATA — route "/upload" (wajib login, middleware auth)
+- Form upload .xlsx/.csv, maksimal 5 MB
+- Baca dengan maatwebsite/excel, tampilkan pratinjau 10 baris pertama
+- Validasi server-side: kolom wajib tidak kosong, seksi_kegiatan harus salah satu dari 5 seksi resmi, tanggal_kegiatan valid, deteksi duplikat (kelurahan + judul_kegiatan + tanggal_kegiatan sama)
+- Normalisasi: trim spasi, samakan huruf besar-kecil nama kelurahan
+- Tombol "Simpan ke database" membuat upload_batch baru
+- Riwayat upload dengan tombol "Hapus batch ini" (hapus semua baris kegiatan dari batch itu sekaligus)
+- Tombol "Unduh template Excel"
+
+KEAMANAN
+Validasi input di server (bukan cuma JavaScript). Pakai Eloquent, bukan raw query. Jangan commit .env.
+
+SETELAH SELESAI
+Jalankan "php artisan serve", pastikan bisa diakses dan beranda tampil dengan grafik berfungsi dari data seeder. Tulis README: cara menjalankan, akun login awal, format kolom Excel yang diharapkan, dan konfirmasikan di akhir bahwa seluruh stack yang dipakai adalah PHP Laravel (sebutkan versi Laravel dan PHP yang dipakai).
