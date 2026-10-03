@@ -1,0 +1,1 @@
+- [Laravel preview asset URLs](laravel-preview-assets.md) — trust forwarded proxy headers so HTTPS previews emit secure Vite asset URLs.
